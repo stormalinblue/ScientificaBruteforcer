@@ -4,7 +4,7 @@ import java.lang.Math;
 
 class b2 {
 	static String pwd = "";
-	static BThread[] bthreads = new BThread[100];
+	static BThread[] bthreads = new BThread[2];
 	
 	public static void main(String[] args) {
 		while(true) {
@@ -31,54 +31,58 @@ class b2 {
 	}
 	
 	private static void initBruteforce() {
-		for(int i = 0; i < 100; i++) {
+		for(int i = 0; i < 2; i++) {
 			bthreads[i] = new BThread(pwd, i);
 		}
-		for(int i = 0; i < 100; i++) {
+		for(int i = 0; i < 2; i++) {
 			bthreads[i].run();
 		}
 	}
 	
-	public static void arrest(String success) {
-		for(int i = 0; i < 100; i++) {
+	public static void arrest() {
+		for(int i = 0; i < 2; i++) {
 			bthreads[i].commitSuicide();
 		}
 	}
 }
 
-class BThread implements Runnable {
-	private Thread t;
+class BThread extends Thread {
 	private int init = 0;
 	private String pwd = "";
 	private String name = "";
-	private boolean interrupt = false;
+	private volatile boolean interrupt = false;
+	String u = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$&1234567890";
+	int l = u.length();
 	
 	BThread(String pwd, int i) {
 		this.name = "Thread " + String.valueOf(i);
-		this.t = new Thread(this, this.name);
 		this.pwd = pwd;
 		this.init = i;
 	}
 	
 	public void run() {
-		String trai = "";
 		try {
-			while(!(trai.equals(pwd))) {
-				if(this.interrupt) throw new InterruptedException();
+			String trai = "";
+			int limit = exp(l, pwd.length() + 1);
+			while(!(trai.equals(pwd) && !this.interrupt && this.init<limit)) {
 				trai = generate(this.init);
-				this.init += 100;
+				this.init += 2;
 			}
-			b2.arrest(trai);
+			b2.arrest();
 			System.out.println("Success! Your password is " + trai + ".");
-		} catch(InterruptedException e) {
-		}
+        } catch (Exception ex) {
+            if (ex instanceof InterruptedException) {
+                messageLog.stdwar("Process Agent Stopped");
+            }else {
+                messageLog.stderr("FATAL Error: "+ex.getMessage());
+                Logger.getLogger(ProcessAgent.class.getName()).log(Level.SEVERE, null, ex);            
+            }
+        }    
 	}
 	
 	private String generate(int t) {
-		String u = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$&1234567890";
-		int l = u.length();
 		String a = "";
-		if(Math.abs(t) > (l - 1)) {
+		if(t > (l - 1)) {
 			int chunk = exp(l, ((int)Math.floor(Math.log(t)/Math.log(l))));
 			a += u.charAt(intDiv(t, chunk) - 1) + generate(t - chunk*intDiv(t, chunk));
 		} else {
@@ -98,6 +102,6 @@ class BThread implements Runnable {
 	}
 	
 	public void commitSuicide() {
-		this.interrupt = true;
+		interrupt = true;
 	}
 }
