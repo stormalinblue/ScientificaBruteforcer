@@ -13,10 +13,11 @@
     <title>Signin Template for Bootstrap</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="bootstrap.min.css" rel="stylesheet">
+    <link href="../static/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="signin.css" rel="stylesheet">
+    <link href="../static/signin.css" rel="stylesheet">
+    <script src="../static/jquery.min.js"></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -26,11 +27,10 @@
   </head>
 
   <body>
-    <img src="apocalypse-7.jpg" id="back-image" />
-	<form name="form1" method="POST" action="passwordCrack">
+    <img src="../static/apocalypse-7.jpg" id="back-image" />
     <div class="container">
       <div class="text-center form-signin">
-        <h1 class="form-signin-heading">Hello parent! The <strong>Apocalypse</strong> begins <strong>here.</strong></h2>
+        <h1 class="form-signin-heading">The <strong>Apocalypse</strong> begins <strong>here.</strong></h2>
         <label for="inputEmail" class="sr-only">Email address</label>
         <input type="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
         <label for="inputPassword" class="sr-only">Password</label>
@@ -44,48 +44,41 @@
  <div class="container">
  <div class="text-center col-md-6 col-md-offset-3 alert alert-info" role="alert">Enter an <strong>Email</strong>, a <strong>password</strong>, and watch it get <strong>cracked in seconds....</strong></div>
 </div>
-	<script type="text/javascript" src="jquery.min.css"/>
 	<script type="text/javascript">
-		var errormessage;
-		function validate() {
-			var emailid = document.getElementById("inputEmail").value;
-			var password = document.getElementById("inputPassword").value;
-			var repassword = document.getElementById("reinputPassword").value;
-			if (password == "" || emailid == "" || repassword == "") {
-				errormessage = "Please do not leave any field empty!"  
-			} else if (password.length!==4) {
-				errormessage = "Length of password has to be four!"
-				//password = "";
-				//repassword = "";
-				document.getElementById("inputPassword").value = "";
-				document.getElementById("reinputPassword").value = "";
-			} else if (password !== repassword) {
-				errormessage = "Passwords do not match!";
-				//password = "";
-				//repassword = "";
-				document.getElementById("inputPassword").value = "";
-				document.getElementById("reinputPassword").value = "";
-			} else {
-				//run your main code here, or call a function with code here if everything is right.
-				console.log("Everything is fine!");
-		
-				$.ajax({
-					type: form.attr('method'),
-					url: form.attr('action'),
-					data: value,
-					success: function (data) {
-					var result = data;
-					$('#result').attr("value",result);
-				}
-			});
-     return false;
-     });
-        return true;
-      }
-      alert(errormessage);
-      return false;
-			};
-      
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+        var errormessage;
+        function validate() {
+            var emailid = document.getElementById("inputEmail").value;
+            var password = document.getElementById("inputPassword").value;
+            var repassword = document.getElementById("reinputPassword").value;
+            if (password == "" || emailid == "" || repassword == "") {
+                errormessage = "Please do not leave any field empty!"  
+            } else if (password.length!==4) {
+                errormessage = "Length of password has to be four!"
+                password = "";
+                repassword = "";
+                document.getElementById("inputPassword").value = "";
+                document.getElementById("reinputPassword").value = "";
+            } else if (password !== repassword) {
+                errormessage = "Passwords do not match!"
+                password = "";
+                repassword = "";
+                document.getElementById("inputPassword").value = "";
+                document.getElementById("reinputPassword").value = "";
+            } else {
+                $.getJSON($SCRIPT_ROOT + '/bruteforce', {
+                    pwd: $('#inputPassword').val(),
+                }, function(data) {
+                });
+                //run your main code here, or call a function with code here if everything is right.
+                console.log("Everything is fine!");
+                return true;
+            }
+            alert(errormessage);
+            return false;
+        };
+
+        
 	</script>
   </body>
 </html>
